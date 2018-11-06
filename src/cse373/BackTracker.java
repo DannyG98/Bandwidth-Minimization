@@ -76,6 +76,8 @@ public class BackTracker {
             candidateArray.remove(solutionArray.get(i));
         }
 
+        Collections.shuffle(candidateArray);
+        
         return candidateArray;
     }
 
