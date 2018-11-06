@@ -31,11 +31,12 @@ public class BackTracker {
 
         ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex);
         for (int i = 0; i < candidateList.size(); i++) {
+            if (getBandwidthPenalty(solutionArray, currentIndex, candidateList.get(i)) < minBandwidth) {
                 solutionArray.set(currentIndex, candidateList.get(i));
                 backtrack(solutionArray, currentIndex+1);
             
+            }
         }
-
     }
 
     private boolean isASolution(ArrayList<Integer> solutionArray, int currentIndex) {
@@ -80,9 +81,8 @@ public class BackTracker {
 
 
     //TODO: Test this function
-    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int in, int num) {
+    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
         int currentBandwidth = 0;
-        int index = in + 1;
 
         for (int i = 0; i < index; i++) {
             if (usingGraph.isEdge(solutionArray.get(i), num))
