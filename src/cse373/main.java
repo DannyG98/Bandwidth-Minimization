@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class main {
 
     public static void main(String[] args) {
-        BackTracker g1 = new BackTracker(new Graph("g-bt-14-13"));
+        BackTracker g1 = new BackTracker(new Graph("g-bt-15-14"));
         ArrayList<Integer> g1Optimal = g1.findOptimalBandwidth();
 
         printArrayList(g1Optimal);

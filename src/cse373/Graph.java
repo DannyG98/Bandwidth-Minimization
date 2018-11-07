@@ -2,19 +2,21 @@ package cse373;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 public class Graph {
 
-    private LinkedList<LinkedList<Integer>> adjacencyList;
+    private HashMap<Integer, HashSet<Integer>> adjacencyList;
     private static final String DATA_PATH = "data";
     private int numVertices;
     private int numEdges;
 
     public Graph(String filePath) {
         File selectedFile = new File(DATA_PATH + "/" + filePath);
-        adjacencyList = new LinkedList<>();
+        adjacencyList = new HashMap<>();
 
         try {
             //Read the file
@@ -23,8 +25,8 @@ public class Graph {
             numEdges = Integer.parseInt(reader.nextLine());
 
             //Create entries for each vertice in adjacency list
-            for (int i = 0; i < numVertices; i++)
-                adjacencyList.add(new LinkedList<Integer>());
+            for (int i = 1; i <= numVertices; i++)
+                adjacencyList.put(i, new HashSet<>());
 
             //Begin populating the adjacency list
             while (reader.hasNext()) {
@@ -39,8 +41,8 @@ public class Graph {
         }
     }
 
-    public LinkedList<Integer> getAdjacent(int n) {
-        return adjacencyList.get(n-1);
+    public HashSet getAdjacent(int n) {
+        return adjacencyList.get(n);
     }
 
     public int getNumVertices() {
@@ -51,7 +53,7 @@ public class Graph {
         return numEdges;
     }
 
-    public LinkedList<LinkedList<Integer>> getAdjList() {
+    public HashMap<Integer, HashSet<Integer>> getAdjList() {
         return adjacencyList;
     }
 
