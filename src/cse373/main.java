@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class main {
 
     public static void main(String[] args) {
-        String fileName = "g-t-25-24";
+        String fileName = "g-bt-10-9";
        
         BackTracker g1 = new BackTracker(new Graph(fileName));
         System.out.println("Running: " + fileName);
