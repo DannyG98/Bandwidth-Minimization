@@ -11,7 +11,9 @@ public class BackTracker {
 
     public BackTracker(Graph g) {
         usingGraph = g;
-        minBandwidth = g.getNumVertices() - 1;
+        minBandwidth = g.getNumVertices();
+        //2;
+        
     }
 
     public ArrayList<Integer> findOptimalBandwidth() {
@@ -31,10 +33,15 @@ public class BackTracker {
 
         ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex);
         for (int i = 0; i < candidateList.size(); i++) {
-            if (getBandwidthPenalty(solutionArray, currentIndex, candidateList.get(i)) < minBandwidth) {
+            int penalty = getBandwidthPenalty(solutionArray, currentIndex, candidateList.get(i));
+            
+            if (penalty < minBandwidth) {
                 solutionArray.set(currentIndex, candidateList.get(i));
                 backtrack(solutionArray, currentIndex+1);
             
+            }
+            else{
+                return;
             }
         }
     }
@@ -72,10 +79,10 @@ public class BackTracker {
             candidateArray.add(i);
         }
 
-        for (int i = 0; i <= currentIndex; i++) {
+        for (int i = 0; i < currentIndex; i++) {
             candidateArray.remove(solutionArray.get(i));
         }
-
+        
         //Shuffles the candidate array before returning
         Collections.shuffle(candidateArray);
         
@@ -84,15 +91,18 @@ public class BackTracker {
 
 
     //TODO: Test this function
-    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
+    public int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
         int currentBandwidth = 0;
 
         for (int i = 0; i < index; i++) {
             if (usingGraph.isEdge(solutionArray.get(i), num))
-                if (currentBandwidth < index - i)
+                if (currentBandwidth < index - i) {
                     currentBandwidth = index - i;
+                }
+                    
         }
-
+        
+        
         return currentBandwidth;
     }
 

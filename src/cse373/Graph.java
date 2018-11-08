@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Scanner;
 
+/**
+ * Graph class for parsing and representing the files. Graph is represented using
+ * a HashMap where the key is a vertice and the value is a HashSet of adjacent vertices.
+ * @author Dan
+ */
 public class Graph {
 
     private HashMap<Integer, HashSet<Integer>> adjacencyList;
