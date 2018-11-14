@@ -2,6 +2,8 @@ package cse373;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * The backtracking class that handles all the backtracking nuances.
@@ -12,19 +14,24 @@ public class BackTracker {
     private Graph usingGraph;
     public int minBandwidth;
     private ArrayList<Integer> bestSolution;
+    private int lowerBound;
+    private boolean abort;
 
     public BackTracker(Graph g) {
         usingGraph = g;
-        minBandwidth = g.getNumVertices();        
+        minBandwidth = g.getNumVertices();
+        lowerBound = findLowerBound();
+        abort = false;
     }
-
+    
     /**
      * Initializes the backtracking algorithm
      * @return returns the optimal bandwidth sequence
      */
     public ArrayList<Integer> findOptimalBandwidth() {
         ArrayList<Integer> solutionArray = new ArrayList<>(Collections.nCopies(usingGraph.getNumVertices(), 0));
-
+        abort = false;
+        
         backtrack(solutionArray, 0);
 
         return bestSolution;
@@ -36,6 +43,9 @@ public class BackTracker {
      * @param currentIndex the current index being filled
      */
     public void backtrack(ArrayList<Integer> solutionArray, int currentIndex) {
+        //Checks if signal to kill recursion has been given
+        if (abort) return;
+        
         
         if(isASolution(solutionArray, currentIndex)) {
             processSolution(solutionArray);
@@ -47,6 +57,9 @@ public class BackTracker {
         
         //Loops through the candidate list
         for (int i = 0; i < candidateList.size(); i++) {
+            //Checks if the signal to kill recursion has been given
+            if (abort) return;
+            
             
             //Finds the cost of adding the current candidate to the list
             int penalty = getBandwidthPenalty(solutionArray, currentIndex, candidateList.get(i));
@@ -82,9 +95,14 @@ public class BackTracker {
      */
     private void processSolution(ArrayList<Integer> solutionArray) {
         int bandwidth = findBandwidth(solutionArray);
+        
         if (bandwidth < minBandwidth) {
             minBandwidth = bandwidth;
             bestSolution = new ArrayList<>(solutionArray);
+        }
+        
+        if (bandwidth == lowerBound) {
+            abort = true;
         }
     }
 
@@ -119,7 +137,7 @@ public class BackTracker {
         ArrayList<Integer> candidateArray = new ArrayList<>();
                 
         for (int i = 1; i <= usingGraph.getNumVertices(); i++) {
-            candidateArray.add(i);
+                candidateArray.add(i);
         }
 
         for (int i = 0; i < currentIndex; i++) {
@@ -140,7 +158,7 @@ public class BackTracker {
      * @param num the number we want to place in
      * @return returns the bandwidth cost as an int
      */
-    public int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
+    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
         int currentBandwidth = 0;
 
         for (int i = 0; i < index; i++) {
@@ -151,6 +169,22 @@ public class BackTracker {
                     
         }
         return currentBandwidth;
+    }
+    
+    /**
+     * Determines the lowest bound for the graph 
+     * @return returns the lowest bound as an int
+     */
+    private int findLowerBound() {
+        int greatestDegree = 0;
+        HashMap<Integer, HashSet<Integer>> adjList = usingGraph.getAdjList();
+        
+        for (Integer x: adjList.keySet()) {
+            if (adjList.get(x).size() > greatestDegree)
+                greatestDegree = adjList.get(x).size();
+        }
+        
+        return (int) Math.ceil(greatestDegree/2);
     }
 
 }
