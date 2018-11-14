@@ -32,7 +32,7 @@ public class BackTracker {
         ArrayList<Integer> solutionArray = new ArrayList<>(Collections.nCopies(usingGraph.getNumVertices(), 0));
         abort = false;
         
-        backtrack(solutionArray, 0);
+        backtrack(solutionArray, 0, -1, solutionArray.size(), false);
 
         return bestSolution;
     }
@@ -42,39 +42,43 @@ public class BackTracker {
      * @param solutionArray the solution
      * @param currentIndex the current index being filled
      */
-    public void backtrack(ArrayList<Integer> solutionArray, int currentIndex) {
+    public void backtrack(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound, boolean flipped) {
         //Checks if signal to kill recursion has been given
         if (abort) return;
         
         
-        if(isASolution(solutionArray, currentIndex)) {
+        if(isASolution(solutionArray, currentIndex, leftBound, rightBound)) {
             processSolution(solutionArray);
             return;
         }
 
         //Creates the candidate list
-        ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex);
+        ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex, leftBound, rightBound);
         
         //Loops through the candidate list
         for (int i = 0; i < candidateList.size(); i++) {
             //Checks if the signal to kill recursion has been given
             if (abort) return;
             
+            solutionArray.set(currentIndex, candidateList.get(i));
             
             //Finds the cost of adding the current candidate to the list
-            int penalty = getBandwidthPenalty(solutionArray, currentIndex, candidateList.get(i));
+            //int penalty = getBandwidthPenalty(solutionArray, currentIndex, leftBound, rightBound, candidateList.get(i));
+            int penalty = findBandwidth(solutionArray);
             
             //If the cost is less than the bandwidth of the current best solution, continue
             if (penalty < minBandwidth) {
-                solutionArray.set(currentIndex, candidateList.get(i));
-                backtrack(solutionArray, currentIndex+1);
-            
+                if (flipped == false)
+                    backtrack(solutionArray, rightBound-1, leftBound+1, rightBound, true);
+                else
+                    backtrack(solutionArray, leftBound+1, leftBound, rightBound-1, false);
             }
             //If not, we prune the branch
-            else{
-                return;
-            }
+//            else{
+//                return;
+//            }
         }
+        solutionArray.set(currentIndex, 0);
     }
 
     /**
@@ -83,8 +87,8 @@ public class BackTracker {
      * @param currentIndex the current index
      * @return 
      */
-    private boolean isASolution(ArrayList<Integer> solutionArray, int currentIndex) {
-        return currentIndex == usingGraph.getNumVertices();
+    private boolean isASolution(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound) {
+        return (currentIndex >= rightBound) || (currentIndex <= leftBound);
     }
 
     /**
@@ -133,19 +137,31 @@ public class BackTracker {
      * @param currentIndex the current index
      * @return returns an ArrayList of candidates
      */
-    private ArrayList<Integer> createCandidates(ArrayList<Integer> solutionArray, int currentIndex) {
+    private ArrayList<Integer> createCandidates(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound) {
         ArrayList<Integer> candidateArray = new ArrayList<>();
-                
+        
+        if (currentIndex == solutionArray.size()-1) {
+            for (int i = solutionArray.get(0) + 1; i <= usingGraph.getNumVertices(); i++) {
+                candidateArray.add(i);
+            }
+            
+            return candidateArray;
+        }
+        
         for (int i = 1; i <= usingGraph.getNumVertices(); i++) {
                 candidateArray.add(i);
         }
 
-        for (int i = 0; i < currentIndex; i++) {
+        for (int i = 0; i <= leftBound; i++) {
+            candidateArray.remove(solutionArray.get(i));
+        }
+        
+        for (int i = solutionArray.size()-1; i >= rightBound ; i--) {
             candidateArray.remove(solutionArray.get(i));
         }
         
         //Shuffles the candidate array before returning
-        Collections.shuffle(candidateArray);
+        //Collections.shuffle(candidateArray);
         
         return candidateArray;
     }
@@ -158,16 +174,55 @@ public class BackTracker {
      * @param num the number we want to place in
      * @return returns the bandwidth cost as an int
      */
-    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int index, int num) {
+    private int getBandwidthPenalty(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound, int num) {
         int currentBandwidth = 0;
 
-        for (int i = 0; i < index; i++) {
+        for (int i = 0; i <= leftBound; i++) {
             if (usingGraph.isEdge(solutionArray.get(i), num))
-                if (currentBandwidth < index - i) {
-                    currentBandwidth = index - i;
+                if (currentBandwidth < currentIndex - i) {
+                    currentBandwidth = currentIndex - i;
                 }
-                    
         }
+        
+        for (int i = solutionArray.size()-1; i >= rightBound; i--) {
+            if (usingGraph.isEdge(solutionArray.get(i), num))
+                if (currentBandwidth < i - currentIndex) {
+                    currentBandwidth = i - currentIndex;
+                }
+        }
+        
+        return currentBandwidth;
+    }
+    
+    private int getCurrentBandwidth(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound) {
+        ArrayList<Integer> indexes = new ArrayList<>();
+        int currentBandwidth = 0;
+        
+        indexes.add(currentIndex);
+        
+        for (int i = 0; i <= leftBound; i++) {
+            indexes.add(i);
+        }
+        
+        indexes.add(currentIndex);
+        
+        for (int i = solutionArray.size()-1; i >= rightBound; i--) {
+            indexes.add(i);
+        }
+        
+        for (int i = 0; i < indexes.size(); i++) {
+            for (int j = i+1; i < indexes.size(); j++) {
+                int pos1 = indexes.get(i);
+                int pos2 = indexes.get(j);
+                
+                if (usingGraph.isEdge(solutionArray.get(pos1), solutionArray.get(pos2))) {
+                    int bandwidth = indexes.get(j) - indexes.get(i);
+                    if (bandwidth > currentBandwidth)
+                        currentBandwidth = bandwidth;
+                }
+            }
+        }
+        
         return currentBandwidth;
     }
     
