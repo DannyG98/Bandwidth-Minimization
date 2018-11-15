@@ -70,6 +70,10 @@ public class Graph {
         return getAdjacent(a).contains(b);
     }
 
+    /**
+     * Apply the Cuthill-McKee heuristic algorithm
+     * @return returns a solution array
+     */
     public ArrayList<Integer> parseCM() {
         Set<Integer> keys = adjacencyList.keySet();
         ArrayList<Integer> heuristicSolution = new ArrayList<>();
@@ -116,7 +120,7 @@ public class Graph {
             }
         }
     
-    
+    //This method is only for testing purposes, but can replace the findBandwidth in the BackTracker class
     public int findBandwidth(ArrayList<Integer> solutionArray) {
         int bandwidth = 0;
 

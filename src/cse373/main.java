@@ -18,18 +18,6 @@ public class main {
         System.out.println("Optimal Bandwidth Number:");
         System.out.println(g1.minBandwidth);
 
-//        Graph test = new Graph(fileName);
-//        System.out.println("Running: " + fileName);
-//        
-//        
-//        ArrayList<Integer> CM = test.parseCM();
-//        
-//        printArrayList(CM);
-//        System.out.println();
-//        
-//        System.out.println("Optimal Bandwidth Number:");
-//        System.out.println(test.findBandwidth(CM));
-
     }
 
     public static void printArrayList(ArrayList<Integer> a) {
