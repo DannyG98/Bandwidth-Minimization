@@ -53,7 +53,7 @@ public class BackTracker {
         }
 
         //Creates the candidate list
-        ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex, leftBound, rightBound);
+        ArrayList<Integer> candidateList = createCandidates(solutionArray, currentIndex, leftBound, rightBound, flipped);
         
         //Loops through the candidate list
         for (int i = 0; i < candidateList.size(); i++) {
@@ -137,28 +137,55 @@ public class BackTracker {
      * @param currentIndex the current index
      * @return returns an ArrayList of candidates
      */
-    private ArrayList<Integer> createCandidates(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound) {
+    private ArrayList<Integer> createCandidates(ArrayList<Integer> solutionArray, int currentIndex, int leftBound, int rightBound, boolean flipped) {
         ArrayList<Integer> candidateArray = new ArrayList<>();
         
         if (currentIndex == solutionArray.size()-1) {
             for (int i = solutionArray.get(0) + 1; i <= usingGraph.getNumVertices(); i++) {
                 candidateArray.add(i);
             }
-            
             return candidateArray;
         }
         
         for (int i = 1; i <= usingGraph.getNumVertices(); i++) {
                 candidateArray.add(i);
         }
-
         for (int i = 0; i <= leftBound; i++) {
             candidateArray.remove(solutionArray.get(i));
         }
-        
         for (int i = solutionArray.size()-1; i >= rightBound ; i--) {
             candidateArray.remove(solutionArray.get(i));
         }
+        
+        //Prioritize Adjacents
+        if (currentIndex != 0 && currentIndex != solutionArray.size()-1) {
+            ArrayList<Integer> adjacents = new ArrayList<>();
+            int adjacentNum;
+            
+            if (flipped == false) {
+                adjacentNum = solutionArray.get(currentIndex-1);
+            } else {
+                adjacentNum = solutionArray.get(currentIndex-1);
+            }
+            
+            HashSet<Integer> toAdd = usingGraph.getAdjacent(adjacentNum);
+            
+            if (toAdd != null)
+                adjacents.addAll(toAdd);
+            else
+                return candidateArray;
+
+            for (Integer x: adjacents) {
+                candidateArray.remove(x);
+            }
+            
+            adjacents.removeAll(solutionArray);
+            
+            adjacents.addAll(candidateArray);
+            
+            return adjacents;
+        }
+        
         
         //Shuffles the candidate array before returning
         //Collections.shuffle(candidateArray);
