@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 /**
  * Graph class for parsing and representing the files. Graph is represented using
- * a HashMap where the key is a vertex and the value is a HashSet of adjacent vertices.
+ * a HashMap where the key is a vertice and the value is a HashSet of adjacent vertices.
  * @author Dan
  */
 public class Graph {
@@ -44,7 +44,7 @@ public class Graph {
             System.out.println("INVALID FILE PATH");
         }
     }
-    
+
     public HashSet getAdjacent(int n) {
         return adjacencyList.get(n);
     }
@@ -62,9 +62,6 @@ public class Graph {
     }
 
     public boolean isEdge(int a, int b) {
-        if (a == 0 || b == 0)
-            return false;
-        
         return getAdjacent(a).contains(b);
     }
 
