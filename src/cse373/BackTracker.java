@@ -2,8 +2,13 @@ package cse373;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.swing.plaf.metal.MetalTheme;
 
 /**
  * The backtracking class that handles all the backtracking nuances.
@@ -19,9 +24,11 @@ public class BackTracker {
 
     public BackTracker(Graph g) {
         usingGraph = g;
-        minBandwidth = g.getNumVertices();
+        bestSolution = usingGraph.parseCM();
+        minBandwidth = findBandwidth(bestSolution);
         lowerBound = findLowerBound();
         abort = false;
+        
     }
     
     /**
@@ -72,9 +79,11 @@ public class BackTracker {
             }
             //If not, we prune the branch
             else{
+                solutionArray.set(currentIndex, 0);
                 return;
             }
         }
+        solutionArray.set(currentIndex, 0);
     }
 
     /**
@@ -135,17 +144,39 @@ public class BackTracker {
      */
     private ArrayList<Integer> createCandidates(ArrayList<Integer> solutionArray, int currentIndex) {
         ArrayList<Integer> candidateArray = new ArrayList<>();
-                
+        
         for (int i = 1; i <= usingGraph.getNumVertices(); i++) {
                 candidateArray.add(i);
         }
 
-        for (int i = 0; i < currentIndex; i++) {
-            candidateArray.remove(solutionArray.get(i));
-        }
+//        for (int i = 0; i < currentIndex; i++) {
+//            candidateArray.remove(solutionArray.get(i));
+//        }
         
+        candidateArray.removeAll(solutionArray);
+       
         //Shuffles the candidate array before returning
         Collections.shuffle(candidateArray);
+        
+        //Prioritize vertexes adjacent to the previous index
+        if (currentIndex != 0) {
+            ArrayList<Integer> adjacents = new ArrayList<>();
+            HashSet<Integer> toAdd = usingGraph.getAdjacent(solutionArray.get(currentIndex - 1));
+
+            if (toAdd != null) {
+                adjacents.addAll(toAdd);
+            } else {
+                return candidateArray;
+            }
+            
+            candidateArray.removeAll(adjacents);
+            adjacents.removeAll(solutionArray);
+            
+            adjacents.addAll(candidateArray);
+            
+            return adjacents;
+            
+        }
         
         return candidateArray;
     }
@@ -186,7 +217,7 @@ public class BackTracker {
         
         return (int) Math.ceil(greatestDegree/2);
     }
-
+    
 }
 
 

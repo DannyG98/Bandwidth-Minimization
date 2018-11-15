@@ -2,9 +2,12 @@ package cse373;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Graph class for parsing and representing the files. Graph is represented using
@@ -62,7 +65,69 @@ public class Graph {
     }
 
     public boolean isEdge(int a, int b) {
+        if(a == 0 || b == 0) 
+            return false;
         return getAdjacent(a).contains(b);
+    }
+
+    public ArrayList<Integer> parseCM() {
+        Set<Integer> keys = adjacencyList.keySet();
+        ArrayList<Integer> heuristicSolution = new ArrayList<>();
+        
+        heuristicSolution.add(findLowestDegree(keys));
+        
+        for (int i = 0; i < adjacencyList.size(); i++) {
+            ArrayList<Integer> adjacents = new ArrayList<>(getAdjacent(heuristicSolution.get(i)));
+            
+            adjacents.removeAll(heuristicSolution);
+            adjacents.sort(new vertexDegreeComparator());
+            
+            heuristicSolution.addAll(adjacents);
+        }
+        
+        return heuristicSolution;
+    }
+
+    private int findLowestDegree(Set<Integer> keys) {
+        int lowest = Integer.MAX_VALUE;
+        int vertex = -1;
+
+        for (Integer x : keys) {
+            int size = getAdjacent(x).size();
+            if (size < lowest) {
+                lowest = size;
+                vertex = x;
+            }
+        }
+
+        return vertex;
+    }
+    
+    private class vertexDegreeComparator implements Comparator<Integer> {
+            
+            @Override
+            public int compare(Integer a, Integer b) {
+                int aSize = getAdjacent(a).size();
+                int bSize = getAdjacent(b).size();
+                
+                if (aSize == bSize) return 0;
+                else if (aSize < bSize) return -1;
+                else return 1;
+            }
+        }
+    
+    
+    public int findBandwidth(ArrayList<Integer> solutionArray) {
+        int bandwidth = 0;
+
+        for (int i = 0; i < solutionArray.size()-1; i++) {
+            for (int j = i; j < solutionArray.size(); j++) {
+                if (isEdge(solutionArray.get(i), solutionArray.get(j)))
+                    if (bandwidth < j - i)
+                        bandwidth = j - i;
+            }
+            }
+        return bandwidth;
     }
 
 }

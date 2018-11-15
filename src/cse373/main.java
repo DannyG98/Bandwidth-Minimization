@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class main {
 
     public static void main(String[] args) {
-        String fileName = "g-bt-10-9";
+        String fileName = "g-gg-24-38";
        
         BackTracker g1 = new BackTracker(new Graph(fileName));
         System.out.println("Running: " + fileName);
@@ -18,7 +18,17 @@ public class main {
         System.out.println("Optimal Bandwidth Number:");
         System.out.println(g1.minBandwidth);
 
-
+//        Graph test = new Graph(fileName);
+//        System.out.println("Running: " + fileName);
+//        
+//        
+//        ArrayList<Integer> CM = test.parseCM();
+//        
+//        printArrayList(CM);
+//        System.out.println();
+//        
+//        System.out.println("Optimal Bandwidth Number:");
+//        System.out.println(test.findBandwidth(CM));
 
     }
 
